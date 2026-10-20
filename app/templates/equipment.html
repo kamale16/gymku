@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Alat - GymKu{% endblock %}
+{% block body %}
+<h1>Alat gym</h1>
+<section>
+  <h2>Tambah stok</h2>
+  <form method="post" action="{{ url_for('admin.add_equipment') }}" class="grid">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <label>Nama alat <input name="name" required></label>
+    <label>Jumlah <input name="quantity" type="number" min="1" max="1000" value="1" required></label>
+    <button>Simpan stok</button>
+  </form>
+</section>
+<section>
+  <h2>Stok sekarang</h2>
+  {% if not items %}<p class="empty">Belum ada alat. Tambahkan alat pertama di atas.</p>{% else %}
+  <div class="scroll"><table>
+    <tr><th>Alat</th><th>Jumlah</th><th></th></tr>
+    {% for i in items %}
+    <tr><td>{{ i.name }}</td><td>{{ i.quantity }}</td>
+      <td class="actions">
+        <form method="post" action="{{ url_for('admin.adjust_equipment', eid=i.id) }}">
+          <input type="hidden" name="_csrf" value="{{ csrf() }}">
+          <input name="delta" type="number" value="1" aria-label="Ubah jumlah">
+          <button class="small">Ubah jumlah</button>
+        </form>
+        <form method="post" action="{{ url_for('admin.delete_equipment', eid=i.id) }}"
+              onsubmit="return confirm('Hapus {{ i.name }}?')">
+          <input type="hidden" name="_csrf" value="{{ csrf() }}">
+          <button class="small danger">Hapus</button>
+        </form>
+      </td></tr>
+    {% endfor %}
+  </table></div>{% endif %}
+</section>
+{% endblock %}

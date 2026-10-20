@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="GymKu">
+  <rect width="48" height="48" rx="11" fill="#0b0e11"/>
+  <path d="M36.5 13.2A15.5 15.5 0 1 0 39.5 24" fill="none" stroke="#4a90e2" stroke-width="6.5"/>
+  <path d="M24 24H41" stroke="#e6e9ec" stroke-width="5" stroke-linecap="butt"/>
+  <circle cx="24" cy="24" r="3.4" fill="#e6e9ec"/>
+</svg>

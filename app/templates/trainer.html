@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Member saya - GymKu{% endblock %}
+{% block body %}
+<h1>Halo, {{ g.user.name }}</h1>
+<div class="stats">
+  <div><b>{{ stats.members }}</b><span>Member Anda</span></div>
+  <div><b>{{ stats.active }}</b><span>Keanggotaan aktif</span></div>
+  <div><b>{{ stats.logs }}</b><span>Catatan progres</span></div>
+</div>
+<section>
+  <h2>Catat progres member</h2>
+  {% if not members %}<p class="empty">Belum ada member yang Anda bimbing. Minta admin menautkan member ke akun Anda.</p>{% else %}
+  <form method="post" action="{{ url_for('trainer.log') }}" class="grid">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <label>Member
+      <select name="member_id" required>{% for m in members %}<option value="{{ m.id }}">{{ m.name }}</option>{% endfor %}</select>
+    </label>
+    <label>Tanggal <input name="log_date" type="date" value="{{ today }}" max="{{ today }}" required></label>
+    <label>Hasil
+      <select name="rating">{% for r in ratings %}<option>{{ r }}</option>{% endfor %}</select>
+    </label>
+    <label class="wide">Catatan <input name="note" required maxlength="200"></label>
+    <button>Simpan progres</button>
+  </form>{% endif %}
+</section>
+<section>
+  <h2>Member yang Anda bimbing</h2>
+  {% if members %}<div class="scroll"><table>
+    <tr><th>Nama</th><th>Rencana</th><th>Keanggotaan</th><th>Catatan</th><th>Terakhir</th></tr>
+    {% for m in members %}<tr><td>{{ m.name }}</td><td>{{ m.plan_name or '-' }}</td>
+      <td>{% if m.membership_end >= today %}<span class="tag ok">Aktif</span>{% else %}<span class="tag bad">Berakhir</span>{% endif %}</td>
+      <td>{{ m.logs }}</td><td>{{ m.last_log or '-' }}</td></tr>{% endfor %}
+  </table></div>{% endif %}
+</section>
+<section>
+  <h2>Stok alat</h2>
+  {% if not equipment %}<p class="empty">Admin belum mengisi daftar alat.</p>{% else %}
+  <ul class="chips">{% for e in equipment %}<li>{{ e.name }} <b>{{ e.quantity }}</b></li>{% endfor %}</ul>{% endif %}
+</section>
+{% endblock %}

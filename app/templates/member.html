@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Latihan saya - GymKu{% endblock %}
+{% block body %}
+<h1>Halo, {{ g.user.name }}</h1>
+<div class="stats">
+  <div><b>{{ days_left }}</b><span>Hari keanggotaan tersisa</span></div>
+  <div><b>{{ total }}</b><span>Sesi tercatat</span></div>
+  <div><b>{{ good_pct }}%</b><span>Hasil bagus</span></div>
+</div>
+<p>
+  {% if g.user.membership_end >= today %}<span class="tag ok">Keanggotaan aktif sampai {{ g.user.membership_end }}</span>
+  {% else %}<span class="tag bad">Keanggotaan berakhir {{ g.user.membership_end }}. Hubungi admin untuk perpanjang.</span>{% endif %}
+  {% if trainer %}Trainer: {{ trainer.name }}{% endif %}
+</p>
+<section>
+  <h2>Rencana: {{ plan.name if plan else 'belum ada' }}</h2>
+  {% if exercises %}<ul class="lines">
+    {% for e in exercises %}<li><span>{{ e.exercise }}</span><b>{{ e.sets }} set x {{ e.reps }}</b></li>{% endfor %}
+  </ul>{% else %}<p class="empty">Trainer Anda belum menetapkan rencana latihan.</p>{% endif %}
+</section>
+<section>
+  <h2>Progres</h2>
+  {% if not logs %}<p class="empty">Belum ada catatan. Trainer akan mengisinya setelah sesi latihan.</p>{% else %}
+  <div class="bars">
+    {% for key, label in (('good','Bagus'),('average','Cukup'),('poor','Kurang')) %}
+    <div class="bar-row"><span>{{ label }}</span>
+      <div class="track"><i class="{{ key }}" style="width: {{ (counts[key] / total * 100)|round|int }}%"></i></div>
+      <b>{{ counts[key] }}</b></div>
+    {% endfor %}
+  </div>
+  <ul class="lines">
+    {% for l in logs %}<li><span><i class="dot {{ l.rating }}"></i>{{ l.log_date }} - {{ l.note }}</span></li>{% endfor %}
+  </ul>{% endif %}
+</section>
+{% endblock %}

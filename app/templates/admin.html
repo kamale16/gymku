@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Akun - GymKu{% endblock %}
+{% block body %}
+<h1>Akun trainer dan member</h1>
+<div class="stats">
+  <div><b>{{ stats.members }}</b><span>Member</span></div>
+  <div><b>{{ stats.active }}</b><span>Keanggotaan aktif</span></div>
+  <div><b>{{ stats.equipment }}</b><span>Unit alat</span></div>
+</div>
+<section>
+  <h2>Tambah akun</h2>
+  <form method="post" action="{{ url_for('admin.add_user') }}" class="grid">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <label>Nama <input name="name" required></label>
+    <label>Username <input name="username" required></label>
+    <label>Password <input name="password" type="password" required minlength="6"></label>
+    <label>Peran
+      <select name="role"><option value="member">Member</option><option value="trainer">Trainer</option></select>
+    </label>
+    <label>Trainer (untuk member)
+      <select name="trainer_id"><option value="">Belum ada</option>
+        {% for t in trainers %}<option value="{{ t.id }}">{{ t.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Rencana latihan (untuk member)
+      <select name="plan_id"><option value="">Belum ada</option>
+        {% for p in plans %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Lama keanggotaan (bulan) <input name="months" type="number" min="1" max="36" value="1"></label>
+    <button>Tambah akun</button>
+  </form>
+</section>
+<section>
+  <h2>Daftar akun</h2>
+  {% if not users %}<p class="empty">Belum ada trainer atau member. Tambahkan akun pertama di atas.</p>{% else %}
+  <div class="scroll"><table>
+    <tr><th>Nama</th><th>Username</th><th>Peran</th><th>Trainer</th><th>Rencana</th><th>Keanggotaan</th><th></th></tr>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.name }}</td><td>{{ u.username }}</td><td>{{ u.role }}</td>
+      <td>{{ u.trainer_name or '-' }}</td><td>{{ u.plan_name or '-' }}</td>
+      <td>{% if u.role == 'member' %}
+        {% if u.membership_end >= today %}<span class="tag ok">Aktif sampai {{ u.membership_end }}</span>
+        {% else %}<span class="tag bad">Berakhir {{ u.membership_end }}</span>{% endif %}
+      {% else %}-{% endif %}</td>
+      <td class="actions">
+        {% if u.role == 'member' %}
+        <form method="post" action="{{ url_for('admin.extend', uid=u.id) }}">
+          <input type="hidden" name="_csrf" value="{{ csrf() }}">
+          <input name="months" type="number" min="1" max="36" value="1" aria-label="Bulan">
+          <button class="small">Perpanjang</button>
+        </form>{% endif %}
+        <form method="post" action="{{ url_for('admin.delete_user', uid=u.id) }}"
+              onsubmit="return confirm('Hapus akun {{ u.username }}?')">
+          <input type="hidden" name="_csrf" value="{{ csrf() }}">
+          <button class="small danger">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table></div>{% endif %}
+</section>
+{% endblock %}

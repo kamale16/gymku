@@ -1,0 +1,40 @@
+DROP TABLE IF EXISTS progress;
+DROP TABLE IF EXISTS plan_exercises;
+DROP TABLE IF EXISTS equipment;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS plans;
+
+CREATE TABLE plans (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE
+);
+CREATE TABLE plan_exercises (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  plan_id INTEGER NOT NULL REFERENCES plans(id) ON DELETE CASCADE,
+  exercise TEXT NOT NULL,
+  sets INTEGER NOT NULL CHECK (sets BETWEEN 1 AND 20),
+  reps INTEGER NOT NULL CHECK (reps BETWEEN 1 AND 100)
+);
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('admin','trainer','member')),
+  trainer_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  plan_id INTEGER REFERENCES plans(id) ON DELETE SET NULL,
+  membership_end TEXT
+);
+CREATE TABLE equipment (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  quantity INTEGER NOT NULL CHECK (quantity >= 0)
+);
+CREATE TABLE progress (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  member_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  log_date TEXT NOT NULL,
+  rating TEXT NOT NULL CHECK (rating IN ('good','average','poor')),
+  note TEXT NOT NULL,
+  UNIQUE (member_id, log_date)
+);

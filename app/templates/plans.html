@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Rencana latihan - GymKu{% endblock %}
+{% block body %}
+<h1>Rencana latihan</h1>
+<section>
+  <h2>Buat rencana baru</h2>
+  <form method="post" action="{{ url_for('trainer.add_plan') }}" class="grid">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <label>Nama rencana <input name="name" required maxlength="50"></label>
+    <button>Buat rencana</button>
+  </form>
+</section>
+{% for p in plans %}
+<section>
+  <h2>{{ p.name }}</h2>
+  {% if exercises[p.id] %}<ul class="lines">
+    {% for e in exercises[p.id] %}<li><span>{{ e.exercise }}</span><b>{{ e.sets }} set x {{ e.reps }}</b></li>{% endfor %}
+  </ul>{% else %}<p class="empty">Rencana ini belum punya latihan.</p>{% endif %}
+  <form method="post" action="{{ url_for('trainer.add_exercise', pid=p.id) }}" class="grid">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <label>Latihan <input name="exercise" required></label>
+    <label>Set <input name="sets" type="number" min="1" max="20" value="3" required></label>
+    <label>Repetisi <input name="reps" type="number" min="1" max="100" value="10" required></label>
+    <button>Tambah latihan</button>
+  </form>
+</section>
+{% else %}<p class="empty">Belum ada rencana. Buat yang pertama di atas.</p>{% endfor %}
+{% if plans and members %}
+<section>
+  <h2>Terapkan ke member</h2>
+  {% for m in members %}
+  <form method="post" action="{{ url_for('trainer.assign_plan', mid=m.id) }}" class="inline">
+    <input type="hidden" name="_csrf" value="{{ csrf() }}">
+    <span>{{ m.name }}</span>
+    <select name="plan_id" aria-label="Rencana untuk {{ m.name }}">
+      {% for p in plans %}<option value="{{ p.id }}" {{ 'selected' if p.id == m.plan_id }}>{{ p.name }}</option>{% endfor %}
+    </select>
+    <button class="small">Terapkan</button>
+  </form>
+  {% endfor %}
+</section>{% endif %}
+{% endblock %}
